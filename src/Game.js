@@ -7,16 +7,20 @@ import Winner from "./winner";
 class Game extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { board: Array(9).fill(null) };
+    this.state = { board: Array(9).fill(null), winner: "", isGameEnd: false };
   }
+
   handleStateUpdate = (index, value) => {
+    if(this.state.isGameEnd) return;
     const newBoard = [...this.state.board];
     newBoard[index] = value;
     this.setState({ board: newBoard }, this.handleSystemMove);
   };
+
   handleReset = () => {
     this.setState({ board: [] });
   };
+
   handleSystemMove = () => {
     const boardArray = [...this.state.board];
     for (let i = 0; i < boardArray.length; i++) {
@@ -25,8 +29,13 @@ class Game extends React.Component {
         break;
       }
     }
-    this.setState({ board: boardArray });
+    this.setState({ board: boardArray },this.setWinner);
   };
+  
+  setWinner =()=>{
+    const winner = this.calculateWinner();
+    this.setState({winner,isGameEnd:!!winner})
+  }
   calculateWinner = () => {
     const board = this.state.board;
     const winnerPatterns = [
@@ -51,19 +60,21 @@ class Game extends React.Component {
 
   render() {
     return (
-      <div className="game" style={{width:"100%"}}>
-        <div className="game-board" style={{marginLeft:"auto",marginRight:"auto"}}>
-
-
-              <Board
-                gameState={this.state.board}
-                handleStateUpdate={this.handleStateUpdate}
-                handleSystemMove={this.handleSystemMove}
-                handleReset={this.handleReset}
-              />
-              <Winner handleWinner={this.calculateWinner()} />
-
-
+      <div className="game" style={{ width: "100%" }}>
+        <div
+          className="game-board"
+          style={{ marginLeft: "auto", marginRight: "auto" }}
+        >
+          <Board
+            gameState={this.state.board}
+            handleStateUpdate={this.handleStateUpdate}
+            handleSystemMove={this.handleSystemMove}
+            handleReset={this.handleReset}
+          />
+          <Winner
+            handleWinner={this.state.winner}
+            handleMouseClickDisable={this.handleMouseClickDisable}
+          />
         </div>
       </div>
     );
