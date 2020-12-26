@@ -1,25 +1,13 @@
 import React from "react";
 
-function Winner(props) {
-  if (props.handleWinner==="X") {
-    return (
-      <div>
-         <h1>The winner is X</h1>;
-         
-      </div>
-    )
-   
-  } else if(props.handleWinner==="O"){
-    return (
-      <div>
-         <h1>The winner is System</h1>;
-       
-      </div>
-    )
-  }
-  else{
-      return null;
-  }
+function Winner({ handleWinner }) {
+  if (!handleWinner) return null;
+
+  return (
+    <div>
+      <h1> {handleWinner === "X" ? "You are the winner" : "You failed"} </h1>;
+    </div>
+  );
 }
 
 export default Winner;

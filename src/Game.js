@@ -10,32 +10,40 @@ class Game extends React.Component {
     this.state = { board: Array(9).fill(null), winner: "", isGameEnd: false };
   }
 
-  handleStateUpdate = (index, value) => {
-    if(this.state.isGameEnd) return;
+  asyncSetState = (state) =>
+    new Promise((resolve, reject) => this.setState(state, resolve)); //Promisifying setSttae becoz setState is an async function
+
+  handleStateUpdate = async (index, value) => {
+    if (this.state.isGameEnd) return;
     const newBoard = [...this.state.board];
     newBoard[index] = value;
-    this.setState({ board: newBoard }, this.handleSystemMove);
+    await this.asyncSetState({ board: newBoard });
+    await this.setWinner();
+    this.handleSystemMove();
   };
 
   handleReset = () => {
-    this.setState({ board: [] });
+    this.setState({ board: [] ,winner:'',isGameEnd:false});
   };
 
   handleSystemMove = () => {
+    if (this.state.isGameEnd) return;
     const boardArray = [...this.state.board];
-    for (let i = 0; i < boardArray.length; i++) {
-      if (boardArray[i] !== "X" && boardArray[i] !== "O") {
-        boardArray[i] = "O";
+    const random = Math.floor(Math.random() * boardArray.length);
+    for (let i = random; i < boardArray.length + random; i++) {
+      const index = i % boardArray.length;
+      if (boardArray[index] !== "X" && boardArray[index] !== "O") {
+        boardArray[index] = "O";
         break;
       }
     }
-    this.setState({ board: boardArray },this.setWinner);
+    this.setState({ board: boardArray }, this.setWinner);//passing setWinner as a callback
   };
-  
-  setWinner =()=>{
+
+  setWinner = () => {
     const winner = this.calculateWinner();
-    this.setState({winner,isGameEnd:!!winner})
-  }
+    return this.asyncSetState({ winner, isGameEnd: !!winner });
+  };
   calculateWinner = () => {
     const board = this.state.board;
     const winnerPatterns = [
@@ -68,13 +76,9 @@ class Game extends React.Component {
           <Board
             gameState={this.state.board}
             handleStateUpdate={this.handleStateUpdate}
-            handleSystemMove={this.handleSystemMove}
             handleReset={this.handleReset}
           />
-          <Winner
-            handleWinner={this.state.winner}
-            handleMouseClickDisable={this.handleMouseClickDisable}
-          />
+          <Winner handleWinner={this.state.winner} />
         </div>
       </div>
     );
