@@ -2,7 +2,7 @@
   "name": "tictacttoe",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://github.com/anuvarghese1395/Tic-Tac-Toe",
+  "homepage": "https://anuvarghese1395.github.io/tic-tac-toe/",
   "dependencies": {
     "@material-ui/core": "^4.11.2",
     "@testing-library/jest-dom": "^5.11.6",
