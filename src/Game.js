@@ -3,7 +3,7 @@ import Board from "./board";
 import "./style.css";
 import Winner from "./winner";
 
-function Game(props) {
+function Game() {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [gameEnd, isgameEnd] = useState(false);
   const [winner, isWinner] = useState("");
