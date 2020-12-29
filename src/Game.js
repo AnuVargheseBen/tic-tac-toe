@@ -1,34 +1,39 @@
-import React from "react";
-import Grid from "@material-ui/core/Grid";
+import React, { useState, useEffect } from "react";
 import Board from "./board";
 import "./style.css";
 import Winner from "./winner";
 
-class Game extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { board: Array(9).fill(null), winner: "", isGameEnd: false };
+function Game(props) {
+  const [board, setBoard] = useState(Array(9).fill(null));
+  const [gameEnd, isgameEnd] = useState(false);
+  const [winner, isWinner] = useState("");
+  const [isSystemTurn, setIsSystemTurn] = useState(false);
+
+  useEffect(() => {
+    setWinner();
+    if (isSystemTurn) {
+      handleSystemMove();
+    }
+  }, [isSystemTurn]);
+
+  function handleStateUpdate(index, value) {
+    if (gameEnd) return;
+    const newBoard = [...board];
+    newBoard[index] = value;
+    setBoard(newBoard);
+
+    setIsSystemTurn(true);
   }
 
-  asyncSetState = (state) =>
-    new Promise((resolve, reject) => this.setState(state, resolve)); //Promisifying setSttae becoz setState is an async function
+  function handleReset() {
+    setBoard([]);
+    isWinner("");
+    isgameEnd(false);
+  }
 
-  handleStateUpdate = async (index, value) => {
-    if (this.state.isGameEnd) return;
-    const newBoard = [...this.state.board];
-    newBoard[index] = value;
-    await this.asyncSetState({ board: newBoard });
-    await this.setWinner();
-    this.handleSystemMove();
-  };
-
-  handleReset = () => {
-    this.setState({ board: [] ,winner:'',isGameEnd:false});
-  };
-
-  handleSystemMove = () => {
-    if (this.state.isGameEnd) return;
-    const boardArray = [...this.state.board];
+  function handleSystemMove() {
+    if (gameEnd) return;
+    const boardArray = [...board];
     const random = Math.floor(Math.random() * boardArray.length);
     for (let i = random; i < boardArray.length + random; i++) {
       const index = i % boardArray.length;
@@ -37,15 +42,24 @@ class Game extends React.Component {
         break;
       }
     }
-    this.setState({ board: boardArray }, this.setWinner);//passing setWinner as a callback
-  };
 
-  setWinner = () => {
-    const winner = this.calculateWinner();
-    return this.asyncSetState({ winner, isGameEnd: !!winner });
-  };
-  calculateWinner = () => {
-    const board = this.state.board;
+    setBoard(boardArray);
+
+    setIsSystemTurn(false);
+  }
+
+  function setWinner() {
+    const winner = calculateWinner(board);
+
+    return {
+      winner: isWinner(winner),
+      gameEnd: isgameEnd(!!winner),
+    };
+  }
+
+  function calculateWinner(board) {
+    // const board = [...board];
+    console.log({ board });
     const winnerPatterns = [
       [0, 1, 2],
       [3, 4, 5],
@@ -64,24 +78,23 @@ class Game extends React.Component {
         return board[winnerPattern[0]];
       }
     }
-  };
-
-  render() {
-    return (
-      <div className="game" style={{ width: "100%" }}>
-        <div
-          className="game-board"
-          style={{ marginLeft: "auto", marginRight: "auto" }}
-        >
-          <Board
-            gameState={this.state.board}
-            handleStateUpdate={this.handleStateUpdate}
-            handleReset={this.handleReset}
-          />
-          <Winner handleWinner={this.state.winner} />
-        </div>
-      </div>
-    );
   }
+
+  return (
+    <div className="game" style={{ width: "100%" }}>
+      <div
+        className="game-board"
+        style={{ marginLeft: "auto", marginRight: "auto" }}
+      >
+        <Board
+          gameState={board}
+          handleStateUpdate={handleStateUpdate}
+          handleReset={handleReset}
+        />
+        <Winner handleWinner={winner} />
+      </div>
+    </div>
+  );
 }
+
 export default Game;
